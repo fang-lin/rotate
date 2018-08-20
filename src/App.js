@@ -27,7 +27,7 @@ class App extends Component {
     this.intervalHandler = setInterval(this.frame, t);
 
     const rects = findDOMNode(this.refs.app).getBoundingClientRect();
-    this.center = [rects.width / 2, 350];
+    this.center = [rects.width / 2, 250];
   }
 
   componentWillUnmount() {
@@ -53,7 +53,8 @@ class App extends Component {
     });
   };
 
-  getAbstractRotate(mx, my) {
+  getAbstractRotate(event) {
+    const [mx, my] = [event.clientX || event.touches[0].clientX, event.clientY || event.touches[0].clientY];
     const [cx, cy] = this.center;
     let rotate = Math.atan((my - cy) / (mx - cx));
     return (mx - cx < 0 ? rotate + Math.PI * 1.5 : rotate + Math.PI * .5);
@@ -65,10 +66,10 @@ class App extends Component {
       const previousRotate = this.rotate;
       const previousRotateTime = this.rotateTime;
 
-      this.rotate = this.initRotate + this.getAbstractRotate(event.clientX, event.clientY);
+      this.rotate = this.initRotate + this.getAbstractRotate(event);
       this.rotateTime = Date.now();
 
-      console.log('this.rotate - previousRotate, this.rotateTime - previousRotateTime', this.rotate - previousRotate, this.rotateTime - previousRotateTime);
+      console.log('this.rotate - previousRotate, this.rotateTime - previousRotateTime', this.rotate, previousRotate, this.rotateTime - previousRotateTime);
       this.rotateVelocity = (this.rotate - previousRotate) / (this.rotateTime - previousRotateTime);
     }
   };
@@ -81,13 +82,13 @@ class App extends Component {
   onMouseDown = event => {
     console.log('onMouseDown');
     this.isDrawing = true;
-    this.initRotate = this.rotate - this.getAbstractRotate(event.clientX, event.clientY);
+    this.initRotate = this.rotate - this.getAbstractRotate(event);
   };
 
   render() {
     return (
-      <div className="App" ref="app" onMouseUp={ this.onMouseUp } onMouseMove={ this.onMouseMove }>
-        <div className="logo" ref="logo" style={ this.state.style } onMouseDown={ this.onMouseDown }/>
+      <div className="App" ref="app" onMouseUp={ this.onMouseUp } onMouseMove={ this.onMouseMove } onTouchEnd={ this.onMouseUp } onTouchMove={ this.onMouseMove }>
+        <div className="logo" ref="logo" style={ this.state.style } onMouseDown={ this.onMouseDown } onTouchStart={ this.onMouseDown }/>
       </div>
     );
   }
